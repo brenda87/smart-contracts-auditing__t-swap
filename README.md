@@ -4,14 +4,44 @@
 
 # TSwap 
 
+
+- [TSwap](#tswap)
+  - [Overview Diagram](#overview-diagram)
+  - [About](#about)
+  - [TSwap Pools](#tswap-pools)
+  - [Liquidity Providers](#liquidity-providers)
+    - [Why would I want to add tokens to the pool?](#why-would-i-want-to-add-tokens-to-the-pool)
+    - [LP Example](#lp-example)
+  - [Core Invariant](#core-invariant)
+  - [Make a swap](#make-a-swap)
+- [Getting Started](#getting-started)
+  - [Requirements](#requirements)
+  - [Quickstart](#quickstart)
+- [Usage](#usage)
+  - [Testing](#testing)
+    - [Test Coverage](#test-coverage)
+- [Audit Scope Details](#audit-scope-details)
+  - [Actors / Roles](#actors--roles)
+  - [Known Issues](#known-issues)
+- [CodeHawks](#codehawks)
+
+## Overview Diagram
+
+![t-swap](./images/diagrams/t-swap-with-factory.png)
+
+## About
+
 This project is meant to be a permissionless way for users to swap assets between each other at a fair price. You can think of T-Swap as a decentralized asset/token exchange (DEX). 
 T-Swap is known as an [Automated Market Maker (AMM)](https://chain.link/education-hub/what-is-an-automated-market-maker-amm) because it doesn't use a normal "order book" style exchange, instead it uses "Pools" of an asset. 
 It is similar to Uniswap. To understand Uniswap, please watch this video: [Uniswap Explained](https://www.youtube.com/watch?v=DLu35sIqVTM)
 
 ## TSwap Pools
+
 The protocol starts as simply a `PoolFactory` contract. This contract is used to create new "pools" of tokens. It helps make sure every pool token uses the correct logic. But all the magic is in each `TSwapPool` contract. 
 
 You can think of each `TSwapPool` contract as it's own exchange between exactly 2 assets. Any ERC20 and the [WETH](https://etherscan.io/token/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2) token. These pools allow users to permissionlessly swap between an ERC20 that has a pool and WETH. Once enough pools are created, users can easily "hop" between supported ERC20s. 
+
+![t-swap](./images/diagrams/tswap-basic.png)
 
 For example:
 1. User A has 10 USDC
@@ -28,6 +58,9 @@ There are 2 functions users can call to swap tokens in the pool.
 We will talk about what those do in a little. 
 
 ## Liquidity Providers
+
+![with-lps](images/diagrams/liquidity-providers.png)
+
 In order for the system to work, users have to provide liquidity, aka, "add tokens into the pool". 
 
 ### Why would I want to add tokens to the pool? 
@@ -51,6 +84,8 @@ Note, in practice, the pool would have slightly different values than 1,400.3 WE
 ## Core Invariant 
 
 Our system works because the ratio of Token A & WETH will always stay the same. Well, for the most part. Since we add fees, our invariant technially increases. 
+
+![uniswap-delta-x](images/diagrams/uniswap-delta-x.png)
 
 `x * y = k`
 - x = Token Balance X
@@ -82,6 +117,8 @@ Our protocol should always follow this invariant in order to keep swapping corre
 
 ## Make a swap
 
+![amm-basic](images/diagrams/amm-basic.png)
+
 After a pool has liquidity, there are 2 functions users can call to swap tokens in the pool. 
 - `swapExactInput`
 - `swapExactOutput`
@@ -89,23 +126,6 @@ After a pool has liquidity, there are 2 functions users can call to swap tokens 
 A user can either choose exactly how much to input (ie: I want to use 10 USDC to get however much WETH the market says it is), or they can choose exactly how much they want to get out (ie: I want to get 10 WETH from however much USDC the market says it is. 
 
 *This codebase is based loosely on [Uniswap v1](https://github.com/Uniswap/v1-contracts/tree/master)*
-
-- [TSwap](#tswap)
-  - [TSwap Pools](#tswap-pools)
-  - [Liquidity Providers](#liquidity-providers)
-    - [Why would I want to add tokens to the pool?](#why-would-i-want-to-add-tokens-to-the-pool)
-    - [LP Example](#lp-example)
-  - [Core Invariant](#core-invariant)
-  - [Make a swap](#make-a-swap)
-- [Getting Started](#getting-started)
-  - [Requirements](#requirements)
-  - [Quickstart](#quickstart)
-- [Usage](#usage)
-  - [Testing](#testing)
-    - [Test Coverage](#test-coverage)
-- [Audit Scope Details](#audit-scope-details)
-  - [Actors / Roles](#actors--roles)
-  - [Known Issues](#known-issues)
 
 # Getting Started
 
@@ -146,7 +166,7 @@ forge coverage --report debug
 
 # Audit Scope Details
 
-- Commit Hash: e643a8d4c2c802490976b538dd009b351b1c8dda
+- Commit Hash: 1ec3c30253423eb4199827f59cf564cc575b46db
 - In Scope:
 ```
 ./src/
@@ -155,8 +175,6 @@ forge coverage --report debug
 ```
 - Solc Version: 0.8.20
 - Chain(s) to deploy contract to: Ethereum
-- Tokens:
-  - Any ERC20 token
 
 ## Actors / Roles
 - Liquidity Providers: Users who have liquidity deposited into the pools. Their shares are represented by the LP ERC20 tokens. They gain a 0.3% fee every time a swap is made. 
@@ -165,3 +183,7 @@ forge coverage --report debug
 ## Known Issues
 
 - None
+
+# CodeHawks
+
+Hasn't happened yet for this repo!
